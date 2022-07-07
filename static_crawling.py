@@ -1,24 +1,27 @@
-### 1단계 ###
-# requests 패키지 가져오기
-import requests               
-
-# 가져올 url 문자열로 입력
-url = 'https://www.naver.com'  
-
-# requests의 get함수를 이용해 해당 url로 부터 html이 담긴 자료를 받아옴
-response = requests.get(url)    
-
-# 우리가 얻고자 하는 html 문서가 여기에 담기게 됨
-html_text = response.text
-
-print("before parsing: \n", html_text)
-### 2단계 ###
-
-# BeautifulSoup 패키지 불러오기
-# 주로 bs로 이름을 간단히 만들어서 사용함
+#step1.프로젝트에 필요한 패키지 불러온다.
 from bs4 import BeautifulSoup as bs
+import requests
 
-# html을 잘 정리된 형태로 변환
-html = bs(html_text, 'html.parser')
+#step2.만약 다른 키워드를 매번 다르게 입력하고 싶다면 아래와 같이 하셔도 됩니다.
+query = input('검색할 키워드를 입력하세요: ')
+url = 'https://search.naver.com/search.naver?where=news&sm=tab_jum&query='+'%s'%query
 
-print('after parsing: \n',html)
+#step3.requests 패키지의 함수를 이용해 url의 html 문서를 가져온다.
+response = requests.get(url)
+html_text=response.text
+
+#step4.bs4 패키지의 함수를 이용해서 html 문서를 파싱한다.
+soup = bs(html_text, 'html.parser')
+
+#step5.bs4 패키지의 select_one 함수와 선택자 개념을 이용해서 뉴스기사 제목을 하나 가져온다.
+print(soup.select_one('a.news_tit').get_text())
+
+#step6.bs4 패키지의 select 함수와 선택자 개념을 이용해서 뉴스기사 제목을 모두 가져온다.
+titles = soup.select('a.news_tit')
+
+for i in titles:
+    title = i.get_text()
+    print(title)
+
+# get_text( ) 함수는 반드시 1개의 html 태그에만 사용할 수 있다.
+# 꼭 for문으로 하나하나씩 가져오기
